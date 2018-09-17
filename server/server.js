@@ -3,31 +3,19 @@ const http = require('http');
 const url = require('url');
 const query = require('querystring');
 
-// add out custom files
-const htmlHandler = require('./htmlResponses.js');
-const jsonHandler = require('./jsonResponses.js');
+const responseHandler = require('./responses.js');
 
-// url paths
-const jsonStruct = {
-  '/success': jsonHandler.success,
-  '/badRequest': jsonHandler.badRequest,
-  '/unauthorized': jsonHandler.unauthorized,
-  '/forbidden': jsonHandler.forbidden,
-  '/internal': jsonHandler.internal,
-  '/notImplemented': jsonHandler.notImplemented,
-  '/notFound': jsonHandler.notFound,
-  notFound: jsonHandler.notFound,
-};
-
-const xmlStruct = {
-  '/': htmlHandler.getIndex,
-  '/badRequest': htmlHandler.badRequest,
-  '/unauthorized': htmlHandler.unauthorized,
-  '/forbidden': htmlHandler.forbidden,
-  '/internal': htmlHandler.internal,
-  '/notImplemented': htmlHandler.notImplemented,
-  '/notFound': htmlHandler.notFound,
-  notFound: htmlHandler.notFound,
+const urlStruct = {
+  '/': responseHandler.getIndex,
+  '/style.css': responseHandler.getCSS,
+  '/success': responseHandler.success,
+  '/badRequest': responseHandler.badRequest,
+  '/unauthorized': responseHandler.unauthorized,
+  '/forbidden': responseHandler.forbidden,
+  '/internal': responseHandler.internal,
+  '/notImplemented': responseHandler.notImplemented,
+  '/notFound': responseHandler.notFound,
+  notFound: responseHandler.notFound,
 };
 
 // set the port
@@ -40,16 +28,13 @@ const onRequest = (request, response) => {
 
   // grab the query parameters
   const params = query.parse(parsedUrl.query);
+  const acceptedTypes = request.headers.accept.split(',');
 
   // check if the path name exists
-  if (xmlStruct[parsedUrl.pathname]) {
-    // check if type exists
-    if (params.type && params.type === 'application/json') {
-      jsonStruct[parsedUrl.pathname](request, response, params);
-    }
-    xmlStruct[parsedUrl.pathname](request, response, params);
+  if (urlStruct[parsedUrl.pathname]) {
+    urlStruct[parsedUrl.pathname](request, response, acceptedTypes, params);
   } else {
-    jsonStruct.notFound(request, response, params);
+    urlStruct.notFound(request, response, params);
   }
 };
 

@@ -10,24 +10,40 @@
     const handleResponse = (xhr) => {
       //grab the content section
       const content = document.querySelector("#content");
+      content.innerHTML = '';
       console.dir(xhr.response);
-      /*const obj = JSON.parse(xhr.response);
       
-      //check the status code
-      switch(xhr.status) {
-        case 200: //success
-          content.innerHTML = `<b>Success</b>`;
-          break;
-        case 400: //bad request 
-          content.innerHTML = `<b>Bad Request</b>`;
-          break;
-        case 404: //not found (requested resource does not exist)
-          content.innerHTML = `<b>Resource Not Found</b>`;
-          break;
-        default: //default other errors we are not handling in this example
-          content.innerHTML = `Error code not implemented by client.`;
-          break;
-      }*/
+      //get the content type
+      const type = xhr.getResponseHeader('Content-Type');
+        
+      const h1 = document.createElement('h1');
+      const p = document.createElement('p');
+      
+      if (type === 'application/json'){
+          const obj = JSON.parse(xhr.response);
+          if (obj.id){
+            h1.textContent = `${obj.id}`;
+          }
+          else{
+              h1.textContent = 'Success';
+          }
+          p.textContent = `${obj.message}`;
+      }
+      else if (type === 'text/xml'){
+          if (xhr.responseXML.querySelector('id')){
+              const id = xhr.responseXML.querySelector('id').textContent;
+          }
+          else{
+              const id = 'success';
+          }
+          const message = xhr.responseXML.querySelector('message').textContent;
+          
+          h1.textContent = `${id}`;
+          p.textContent = `${message}`;
+      }
+        
+        content.appendChild(h1);
+        content.appendChild(p);
     };
     
     //function to send ajax
@@ -36,14 +52,14 @@
       let page = document.getElementById("page").value;
       let type = document.getElementById("type").value;
         
-      let url = page + "?type=" + type;
+      let url = page;
         
       //create a new request
       const xhr = new XMLHttpRequest();
       
       xhr.open('GET', url);
       //Set the accept headers to the desired response mime type
-      xhr.setRequestHeader ("Accept", 'application/json');
+      xhr.setRequestHeader ("Accept", type);
       
       xhr.onload = () => handleResponse(xhr);
       xhr.send();
