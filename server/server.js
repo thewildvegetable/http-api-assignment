@@ -28,7 +28,7 @@ const xmlStruct = {
   '/notImplemented': htmlHandler.notImplemented,
   '/notFound': htmlHandler.notFound,
   notFound: htmlHandler.notFound,
-}
+};
 
 // set the port
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
@@ -43,9 +43,9 @@ const onRequest = (request, response) => {
 
   // check if the path name exists
   if (xmlStruct[parsedUrl.pathname]) {
-    //check if type exists
-    if (params.type && params.type === 'application/json'){
-        jsonStruct[parsedUrl.pathname](request, response, params);
+    // check if type exists
+    if (params.type && params.type === 'application/json') {
+      jsonStruct[parsedUrl.pathname](request, response, params);
     }
     xmlStruct[parsedUrl.pathname](request, response, params);
   } else {
